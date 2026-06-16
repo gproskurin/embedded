@@ -139,8 +139,8 @@ void ts_init()
 #endif
 
 
-constexpr uint16_t lcd_x = 480;
-constexpr uint16_t lcd_y = 800;
+constexpr uint16_t lcd_x = 800;
+constexpr uint16_t lcd_y = 480;
 stm32_lib::display::lcd_t<lcd_x, lcd_y> lcd;
 void init()
 {
@@ -151,6 +151,18 @@ void init()
 
 	RCC->APB3ENR |= RCC_APB3ENR_LTDCEN_Msk | RCC_APB3ENR_DSIEN_Msk;
 	toggle_bits_10(&RCC->APB3RSTR, RCC_APB3RSTR_LTDCRST_Msk | RCC_APB3RSTR_DSIRST_Msk);
+
+	bsp::pin_lcd_reset.set(
+		stm32_lib::gpio::mode_t::output,
+		stm32_lib::gpio::otype_t::push_pull,
+		stm32_lib::gpio::pupd_t::pu,
+		stm32_lib::gpio::speed_t::bits_11
+	);
+	static_assert(configTICK_RATE_HZ/100 > 0);
+	bsp::pin_lcd_reset.set_state(0);
+	vTaskDelay(configTICK_RATE_HZ/50); // 20ms
+	bsp::pin_lcd_reset.set_state(1);
+	vTaskDelay(configTICK_RATE_HZ/100); // 10ms
 
         DSI->MCR = 0; // video mode
         DSI->WCFGR = 0; // ~DSIM

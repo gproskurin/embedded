@@ -8,4 +8,6 @@
 
 #include "FreeRTOSConfig-default.h"
 
+#undef configASSERT
+
 #endif /* FREERTOS_CONFIG_H */

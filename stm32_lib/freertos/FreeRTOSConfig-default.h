@@ -5,6 +5,10 @@
 #define configTICK_RATE_HZ                         100
 #endif
 
+#define configUSE_PREEMPTION                       1
+
+#define configUSE_TIME_SLICING                     0
+
 #ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION    0
 #endif
@@ -12,8 +16,6 @@
 #define configUSE_TICKLESS_IDLE                    0
 #endif
 
-#define configUSE_PREEMPTION                       1
-#define configUSE_TIME_SLICING                     0
 
 #define configMINIMAL_STACK_SIZE                   128
 #define configMAX_TASK_NAME_LEN                    16
@@ -88,7 +90,6 @@
 #define INCLUDE_uxTaskGetStackHighWaterMark    0
 #define INCLUDE_xTaskGetIdleTaskHandle         0
 #define INCLUDE_eTaskGetState                  0
-#define INCLUDE_xEventGroupSetBitFromISR       0
 #define INCLUDE_xTimerPendFunctionCall         0
 #define INCLUDE_xTaskAbortDelay                0
 #define INCLUDE_xTaskGetHandle                 0

@@ -155,6 +155,10 @@ constexpr stm32_lib::gpio::gpio_pin_t pin_usb_dm{GPIOA_BASE, 11};
 constexpr stm32_lib::gpio::gpio_pin_t pin_usb_dp{GPIOA_BASE, 12};
 #define USB_AF 10
 
+constexpr stm32_lib::gpio::gpio_pin_t pin_lcd_reset{GPIOG_BASE, 3};
+constexpr stm32_lib::gpio::gpio_pin_t pin_lcd_te{GPIOJ_BASE, 2};
+constexpr stm32_lib::gpio::gpio_pin_t pin_lcd_bl_ctrl{GPIOJ_BASE, 12};
+
 #endif
 
 

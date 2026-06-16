@@ -36,23 +36,25 @@ auto g_pin_led4 = freertos_utils::make_pin_toggle_task("blink_led4", bsp::pin_le
 
 
 template <typename BlinkTask>
-void handle_btn(BlinkTask& t, bool s)
+void handle_btn(BlinkTask& t, bool s, int n)
 {
 	if (s) {
 		// release
-		t.pulse_once(configTICK_RATE_HZ/10);
+		logger.log_async("PINPOLL release\r\n");
+		t.pulse_many(configTICK_RATE_HZ/10, configTICK_RATE_HZ/10, n+1);
 	} else {
 		// press
-		t.pulse_many(configTICK_RATE_HZ/10, configTICK_RATE_HZ/10, 3);
+		logger.log_async("PINPOLL press\r\n");
+		t.pulse_many(configTICK_RATE_HZ/5, configTICK_RATE_HZ/5, n);
 	}
 }
 
 using btn_t = nrf5_lib::gpio::pin_t;
 
-void btn_cb_1(const btn_t&, bool s) { handle_btn(g_pin_led1, s); }
-void btn_cb_2(const btn_t&, bool s) { handle_btn(g_pin_led2, s); }
-void btn_cb_3(const btn_t&, bool s) { handle_btn(g_pin_led3, s); }
-void btn_cb_4(const btn_t&, bool s) { handle_btn(g_pin_led4, s); }
+void btn_cb_1(const btn_t&, bool s) { handle_btn(g_pin_led1, s, 1); }
+void btn_cb_2(const btn_t&, bool s) { handle_btn(g_pin_led1, s, 3); }
+void btn_cb_3(const btn_t&, bool s) { handle_btn(g_pin_led1, s, 5); }
+void btn_cb_4(const btn_t&, bool s) { handle_btn(g_pin_led1, s, 7); }
 
 freertos_utils::pinpoll::task_arg_t<btn_t, 4> pinpoll_task_args{
 	freertos_utils::pinpoll::make_pin_info(bsp::pin_button_1, btn_cb_1),
@@ -63,7 +65,7 @@ freertos_utils::pinpoll::task_arg_t<btn_t, 4> pinpoll_task_args{
 
 
 StaticTask_t xTaskBufferIdle;
-freertos_utils::task_stack_t<64> idle_task_stack;
+freertos_utils::task_stack_t<1024> idle_task_stack;
 extern "C"
 void vApplicationGetIdleTaskMemory(StaticTask_t **tcbIdle, StackType_t **stackIdle, uint32_t *stackSizeIdle)
 {
@@ -129,13 +131,20 @@ __attribute__ ((noreturn)) void main()
 	g_pin_led2.init_pin();
 	g_pin_led3.init_pin();
 	g_pin_led4.init_pin();
-	g_pin_led4.pulse_continuous(configTICK_RATE_HZ/10, configTICK_RATE_HZ/5);
+	//g_pin_led1.pulse_continuous(configTICK_RATE_HZ/3, configTICK_RATE_HZ/3);
+	g_pin_led2.pulse_continuous(configTICK_RATE_HZ/10, configTICK_RATE_HZ/10);
+	g_pin_led3.pulse_continuous(configTICK_RATE_HZ/10, configTICK_RATE_HZ/10*9);
+	g_pin_led4.pulse_continuous(configTICK_RATE_HZ/2, configTICK_RATE_HZ/2);
 
 	log_sync("Creating NRF-52 task...\r\n");
 	create_nrf52_task("nrf52_task", PRIO_NRF52);
 	log_sync("Created NRF-52 task\r\n");
 
 	log_sync("Creating PINPOLL task...\r\n");
+	bsp::pin_button_1.set_mode_button();
+	bsp::pin_button_2.set_mode_button();
+	bsp::pin_button_3.set_mode_button();
+	bsp::pin_button_4.set_mode_button();
 	freertos_utils::pinpoll::create_task("pinpoll", PRIO_PINPOLL, &pinpoll_task_args);
 	log_sync("Created PINPOLL task\r\n");
 
